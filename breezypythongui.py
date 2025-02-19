@@ -25,17 +25,19 @@ class emptyWindow(EasyFrame):
         self.darkButton = self.addButton(text="placeholder", row = 0, column= 2, columnspan= 1)
         #top text, could use for displaying the city
         
+        weatherFont = Font(family = "Verdana", size = 20)
         self.WeatherLabel = self.addLabel(text = "Weather",
-                      row = 1, column = 1, columnspan= 2, sticky= N+W+E)
+                      row = 1, column = 1, columnspan= 2, sticky= N+W+E+S, font = weatherFont)
 
         #temperature output
-        tempFont = Font(family = "Verdana", size = 20)
+        tempFont = Font(family = "Verdana", size = 30)
         self.WeatherLabel = self.addLabel(text=0,
-                      row = 2, column = 1, columnspan= 2, sticky= N+W+E, font=tempFont)
+                      row = 2, column = 1, columnspan= 2, sticky= N+W+E+S, font=tempFont)
         #temp type toggle
-        self.tempTypeToggleButton = self.addButton(text = "Switch to Fahrenheit/Celsius", row = 3, column = 1, command=self.fahrCalc)
+        self.tempTypeToggleButton = self.addButton(text = "Switch to Fahrenheit/Celsius", row = 3, column = 1)
         #the search
-        self.searchField = self.addTextField(text = "search for city", row = 4, column = 0, columnspan= 3, sticky = N+W+E)
+        self.searchField = self.addTextField(text = "search for city", row = 4, column = 0, columnspan= 2, sticky = W+E)
+        self.searchEnterButton = self.addButton(text = "search", row = 4, column = 2)
 
 
     def fahrCalc(self):
