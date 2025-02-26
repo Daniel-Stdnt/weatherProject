@@ -1,2 +1,3 @@
-# weatherProject
-final project for the software development class
+# WeatherProject
+
+Final Project for Intro to Software Devlopment 140
