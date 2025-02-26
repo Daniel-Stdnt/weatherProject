@@ -1,21 +1,34 @@
 """
 what we need:
-    city at the top, with tempurature below it
+    first page:
     button to toggle light and dark mode
-    search box to select city (dropdown if that is too complicated)
+    search box to find cities and drop down to narrow search
     button to switch between fahreinhit and celsius
 
+    second page:
+    city name at the top with big font size
+    temperature on the left with temperature type included
+    image on right showing the weather state (sunny, rainy, ect.)
+
 todo:
-    make a new template cause right now its literally just that temperature converter assignment
+    fix up the alginment errors a little on the first
+    maybe increase the size of some labels/buttons?
+
+
+requirements (run these commands in the terminal before running the first time or there will be errors):
+pip install requests
+pip install pillow
+
 
 """
 key = "4343dea060574bf3803185626252502"
 import tkinter as tk
-"""from breezypythongui import EasyFrame"""
 from tkinter import N, S, W, E
 from tkinter.font import Font
 from tkinter import ttk
-import requests
+from PIL import Image, ImageTk #type: ignore
+import requests #type: ignore
+
 
 
 """def get_cities():
@@ -27,62 +40,81 @@ import requests
             return []"""
 
 class emptyWindow:
+    
     """find a way to have a urlList variable"""
     def __init__(self,master):
+        self.useCel = True
         self.master = master
-        self.master.title("Weather App")
+        self.master.title("Weather App (In Progress)")
         self.master.geometry("600x300")
+        self.urlList = []
 
-        self.new_window_button = tk.Button(self.master,text="placeholder",command=self.open_new_window)
-        self.new_window_button.grid(row=0, column =2, columnspan=1, sticky =N+E+S+W)
+        self.new_window_button = tk.Button(self.master,text="2",command=self.open_new_window)
+        self.new_window_button.place(x=0, y=0)
 
-        """self.cityLabel = tk.Label(self.master,text="Weather")
-        self.cityLabel.grid(row=1, column=1, columnspan= 1)
+        self.tempTypeToggleButton = tk.Button(self.master,text="Celsius", command=self.switchTemp)
+        self.tempTypeToggleButton.place(x=270, y=275)
 
-        self.tempLabel = tk.Label(self.master,text=0)
-        self.tempLabel.grid(row=2,column=1,columnspan=2)"""
-
-        self.tempTypeToggleButton = tk.Button(self.master,text="switch to ferenihnt/celsus")
-        self.tempTypeToggleButton.grid(row=3,column=1,columnspan=1)
-
-        self.searchInput = tk.Entry(self.master,text="search for city")
-        self.searchInput.grid(row=4,column=0,columnspan=2)
+        self.searchInput = tk.Entry(self.master,text="Search for City")
+        self.searchInput.place(x=245, y=225)
         self.searchEnterButton = tk.Button(self.master,text="Search", command=self.populate_listbox)
-        self.searchEnterButton.grid(row=4,column=2,columnspan=1)
+        self.searchEnterButton.place(x=280, y=150)
 
 
-        self.searchLabel = tk.Label(self.master,text="Search with the above input and narrow down search with the dropdown below")
-        self.searchLabel.grid(row=6,column=1)
+        self.searchLabel = tk.Label(self.master,text="Search ^ Select ⇩")
+        self.searchLabel.place(x=260, y=180)
         self.cityCombo = ttk.Combobox(self.master)
-        self.cityCombo.grid(row=7, column=1)
+        self.cityCombo.place(x=235, y=200)
 
         self.getWeatherButton = tk.Button(self.master,text="Show Weather", command=self.get_weather_data)
-        self.getWeatherButton.grid(row=7,column=2,columnspan=1)
+        self.getWeatherButton.place(x=260, y=250)
         
 
     def open_new_window(self):
-        CurrentCity = "noblesville-indiana-united-states-of-america"
+        numSelect = self.cityCombo.current()
+        CurrentCity = self.urlList[numSelect]
         new_window = tk.Toplevel(self.master)
-        new_window.title("New Window")
+        new_window.title("Weather App (In Progress)")
         new_window.geometry("600x300")
         info = self.get_info()
         if len(info) == 0:
             print("something went wrong")
         else:
             print("something went right")
-            new_window.cityName = tk.Label(new_window,text="Placeholder").pack(pady = 20)
+            
+            new_window.cityName = tk.Label(new_window,text=info['location']["name"] + ", " + info['location']['region']).grid(row=0, column= 1)
+            if self.useCel:
+                new_window.tempLabel = tk.Label(new_window,text=info['current']['temp_c']).grid(row=1,column=0)
+            else:
+                new_window.tempLabel = tk.Label(new_window,text=info['current']['temp_f']).grid(row=1,column=0)
+
+
+            """find a way to get URL images to work"""
+
+            image_path = info['current']['condition']['icon']
+            new_window.weatherImage = tk.Label(new_window, text=image_path).grid(row=1,column=2)
+
+            """the info"""
             print(info["current"]["temp_c"])
 
+    def switchTemp(self):
+        self.useCel = not self.useCel
+        if self.useCel:
+            self.tempTypeToggleButton['text'] = "Celsius"
+        else:
+            self.tempTypeToggleButton['text'] = "Fahrenhiet"
+        print(self.useCel)
 
     def populate_listbox(self):
         cities = self.get_cities()
         """build string for combo box"""
         if len(cities) == 0:
-            self.searchLabel['text'] = "we couldnt get any results, please try again"
+            self.searchLabel['text'] = "No results"
         else:
-            self.searchLabel['text'] = "choose your city with the dropdown below"
+            self.searchLabel['text'] = "Choose your City"
             """get the urls from the cities and put them in a list"""
-            self.urlList = [f"{city['url']}" for city in cities]
+            self.tempList = [f"{city['url']}" for city in cities]
+            self.urlList = self.tempList[:]
 
             city_list = [f"{city['id']} - {city['name']}" for city in cities]
             """populate the combo box"""
@@ -109,13 +141,17 @@ class emptyWindow:
         
     def get_info(self):
         """figure out how to put the city URL here"""
-        currentCity = "noblesville-indiana-united-states-of-america"
-        api_url = "https://api.weatherapi.com/v1/current.json?q="+currentCity+"&key="+key
-        response = requests.get(api_url)
-        if response.status_code == 200:
-            return response.json()
+        numSelected = self.cityCombo.current()
+        if numSelected <= -1:
+            """error"""
         else:
-            return[]
+            currentCity = self.urlList[numSelected]
+            api_url = "https://api.weatherapi.com/v1/current.json?q="+currentCity+"&key="+key
+            response = requests.get(api_url)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return[]
 
 
 
@@ -127,42 +163,4 @@ if __name__ == "__main__":
     root.mainloop()
 
 
-"""class emptyWindow(EasyFrame):
-
-    def __init__(self):
-        EasyFrame.__init__(self, title = "Weather App",
-                            width = 600, height = 300)
-        #light/dark button
-        self.darkButton = self.addButton(text="placeholder", row = 0, column= 2, columnspan= 1)
-        #top text, could use for displaying the city
-        
-        weatherFont = Font(family = "Verdana", size = 20)
-        self.WeatherLabel = self.addLabel(text = "Weather",
-                      row = 1, column = 1, columnspan= 2, sticky= N+W+E+S, font = weatherFont)
-
-        #temperature output
-        tempFont = Font(family = "Verdana", size = 30)
-        self.WeatherLabel = self.addLabel(text=0,
-                      row = 2, column = 1, columnspan= 2, sticky= N+W+E+S, font=tempFont)
-        #temp type toggle
-        self.tempTypeToggleButton = self.addButton(text = "Switch to Fahrenheit/Celsius", row = 3, column = 1)
-        #the search
-        self.searchField = self.addTextField(text = "search for city", row = 4, column = 0, columnspan= 2, sticky = W+E)
-        self.searchEnterButton = self.addButton(text = "search", row = 4, column = 2)
-
-
-    def fahrCalc(self):
-        cels = self.temperatureInput.getNumber()
-        fahr = (cels * (9/5)) + 32
-        self.temperatureOutput.setNumber(fahr)
-        self.setBackground("grey")
-        self.temperatureInput["foreground"] = "white"
-
-    def celsCalc(self):
-        fahr = self.temperatureInput.getNumber()
-        cels = (5/9) * (fahr-32)
-        self.temperatureOutput.setNumber(cels)
-
-
-emptyWindow().mainloop()"""
     
