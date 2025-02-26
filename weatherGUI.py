@@ -9,12 +9,14 @@ todo:
     make a new template cause right now its literally just that temperature converter assignment
 
 """
+key = "4343dea060574bf3803185626252502"
 import tkinter as tk
 """from breezypythongui import EasyFrame"""
 from tkinter import N, S, W, E
 from tkinter.font import Font
 from tkinter import ttk
 import requests
+
 
 """def get_cities():
         api_url = "https://api.weatherapi.com/v1/search.json?q=fishers&key=4343dea060574bf3803185626252502"
@@ -25,6 +27,7 @@ import requests
             return []"""
 
 class emptyWindow:
+    """find a way to have a urlList variable"""
     def __init__(self,master):
         self.master = master
         self.master.title("Weather App")
@@ -52,13 +55,24 @@ class emptyWindow:
         self.searchLabel.grid(row=6,column=1)
         self.cityCombo = ttk.Combobox(self.master)
         self.cityCombo.grid(row=7, column=1)
+
+        self.getWeatherButton = tk.Button(self.master,text="Show Weather", command=self.get_weather_data)
+        self.getWeatherButton.grid(row=7,column=2,columnspan=1)
         
 
     def open_new_window(self):
+        CurrentCity = "noblesville-indiana-united-states-of-america"
         new_window = tk.Toplevel(self.master)
         new_window.title("New Window")
         new_window.geometry("600x300")
-        tk.Label(new_window,text="Placeholder").pack(pady = 20)
+        info = self.get_info()
+        if len(info) == 0:
+            print("something went wrong")
+        else:
+            print("something went right")
+            new_window.cityName = tk.Label(new_window,text="Placeholder").pack(pady = 20)
+            print(info["current"]["temp_c"])
+
 
     def populate_listbox(self):
         cities = self.get_cities()
@@ -67,14 +81,36 @@ class emptyWindow:
             self.searchLabel['text'] = "we couldnt get any results, please try again"
         else:
             self.searchLabel['text'] = "choose your city with the dropdown below"
+            """get the urls from the cities and put them in a list"""
+            self.urlList = [f"{city['url']}" for city in cities]
+
             city_list = [f"{city['id']} - {city['name']}" for city in cities]
             """populate the combo box"""
             self.cityCombo["values"] = city_list
+    
+    def get_weather_data(self):
+        currentId = self.cityCombo.current()
+        if currentId < 0:
+            print("please select a city")
+        else:
+            print(self.cityCombo.get())
+
+
 
     def get_cities(self):
-        key = "4343dea060574bf3803185626252502"
+        
         citySearched = self.searchInput.get()
         api_url = "https://api.weatherapi.com/v1/search.json?q="+citySearched+"&key="+key
+        response = requests.get(api_url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return[]
+        
+    def get_info(self):
+        """figure out how to put the city URL here"""
+        currentCity = "noblesville-indiana-united-states-of-america"
+        api_url = "https://api.weatherapi.com/v1/current.json?q="+currentCity+"&key="+key
         response = requests.get(api_url)
         if response.status_code == 200:
             return response.json()
