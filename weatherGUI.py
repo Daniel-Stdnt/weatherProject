@@ -1,18 +1,18 @@
 """
 what we need:
     first page:
-    button to toggle light and dark mode
+    button to toggle light and dark mode --maybe? idk anymore
     search box to find cities and drop down to narrow search
     button to switch between fahreinhit and celsius
+    temprature in both celsius and fahreinhit
 
     second page:
-    city name at the top with big font size
-    temperature on the left with temperature type included
-    image on right showing the weather state (sunny, rainy, ect.)
 
 todo:
-    fix up the alginment errors a little on the first
-    maybe increase the size of some labels/buttons?
+    larger font
+    UI cleanup
+    second page
+    thats basically it
 
 
 requirements (run these commands in the terminal before running the first time or there will be errors):
@@ -28,49 +28,61 @@ from tkinter.font import Font
 from tkinter import ttk
 from PIL import Image, ImageTk #type: ignore
 import requests #type: ignore
+from io import BytesIO
 
 
 
-"""def get_cities():
-        api_url = "https://api.weatherapi.com/v1/search.json?q=fishers&key=4343dea060574bf3803185626252502"
-        response = requests.get(api_url)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return []"""
 
 class emptyWindow:
     
-    """find a way to have a urlList variable"""
     def __init__(self,master):
-        self.useCel = True
         self.master = master
-        self.master.title("Weather App (In Progress)")
-        self.master.geometry("600x300")
-        self.urlList = []
+        self.master.title("Weather App")
+        self.master.geometry("600x500")
 
-        self.new_window_button = tk.Button(self.master,text="2",command=self.open_new_window)
-        self.new_window_button.place(x=0, y=0)
+        # Configure column weights ensure equal distribution of cells in each row
+        self.master.grid_columnconfigure(0, weight=1)
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_columnconfigure(2, weight=1)
 
-        self.tempTypeToggleButton = tk.Button(self.master,text="Celsius", command=self.switchTemp)
-        self.tempTypeToggleButton.place(x=270, y=275)
+        image = Image.open("whatsmyweatherlogo.png")
 
-        self.searchInput = tk.Entry(self.master,text="Search for City")
-        self.searchInput.place(x=245, y=225)
-        self.searchEnterButton = tk.Button(self.master,text="Search", command=self.populate_listbox)
-        self.searchEnterButton.place(x=280, y=150)
+        #resize the image
+        max_size = (600, 600)  # Maximum width and height
+        image.thumbnail(max_size)
+        logo = ImageTk.PhotoImage(image)
 
+        # create a label to display the image
+        logo_label = tk.Label(self.master, image=logo)
+        logo_label.grid(row=0, column=0, columnspan=3)
+        #keep a reference to avoid garbage collection
+        logo_label.image = logo
+        
+        #Row 1
+        self.cityLabel = tk.Label(self.master,text="Enter your City or Zip Code")
+        self.cityLabel.grid(row=1, column=0, columnspan= 1, padx=0, pady=0, sticky="e")
 
-        self.searchLabel = tk.Label(self.master,text="Search ^ Select ⇩")
-        self.searchLabel.place(x=260, y=180)
+        self.searchInput = tk.Entry(self.master,text="search for city")
+        self.searchInput.grid(row=1,column=1,columnspan=1, padx=0, pady=0)
+
+        self.searchEnterButton = tk.Button(self.master,text="Search City/Zip", command=self.populate_listbox) #change to call GetInfo() getting weather data
+        self.searchEnterButton.grid(row=1,column=2,columnspan=1,padx=0, pady=0, sticky="w")
+
+        #Row 2 - might remove - or you can use this to show messages for validation errors or instructions
+        self.tempLabel = tk.Label(self.master,text="")
+        self.tempLabel.grid(row=2,column=0,columnspan=3)
+
+        #Row 3
         self.cityCombo = ttk.Combobox(self.master)
-        self.cityCombo.place(x=235, y=200)
+        self.cityCombo.grid(row=3, column=1)
 
-        self.getWeatherButton = tk.Button(self.master,text="Show Weather", command=self.get_weather_data)
-        self.getWeatherButton.place(x=260, y=250)
+        self.show_weather_button = tk.Button(self.master,text="Show The Weather", command=self.show_weather_section)
+        self.show_weather_button.grid(row=3, column =2, columnspan=1, sticky="w")
         
 
-    def open_new_window(self):
+    """def open_new_window(self):
+        # new_window = tk.Toplevel(self.master)
+        # newWindow(new_window)
         numSelect = self.cityCombo.current()
         CurrentCity = self.urlList[numSelect]
         new_window = tk.Toplevel(self.master)
@@ -89,13 +101,22 @@ class emptyWindow:
                 new_window.tempLabel = tk.Label(new_window,text=info['current']['temp_f']).grid(row=1,column=0)
 
 
-            """find a way to get URL images to work"""
+            #find a way to get URL images to work
 
-            image_path = info['current']['condition']['icon']
+            image_path = "http:" + info['current']['condition']['icon']
             new_window.weatherImage = tk.Label(new_window, text=image_path).grid(row=1,column=2)
 
-            """the info"""
-            print(info["current"]["temp_c"])
+            response = requests.get(image_path)
+            if response.status_code == 200:
+                image_data = response.content
+                image = Image.open(BytesIO(image_data))
+                photo = ImageTk.PhotoImage(image)
+              #  new_window.weatherImage.config(image = photo)
+              #  new_window.weatherImage.image = photo #keep a reference to avoid garbage collection
+
+            #self.show_image(image_path)
+            #the info
+            print(info["current"]["temp_c"])"""
 
     def switchTemp(self):
         self.useCel = not self.useCel
@@ -106,12 +127,14 @@ class emptyWindow:
         print(self.useCel)
 
     def populate_listbox(self):
+        self.cityCombo.set('')
+        self.cityCombo['values'] = ()
         cities = self.get_cities()
         """build string for combo box"""
         if len(cities) == 0:
-            self.searchLabel['text'] = "No results"
+            self.tempLabel['text'] = "No results"
         else:
-            self.searchLabel['text'] = "Choose your City"
+            self.tempLabel['text'] = "Choose your City"
             """get the urls from the cities and put them in a list"""
             self.tempList = [f"{city['url']}" for city in cities]
             self.urlList = self.tempList[:]
@@ -119,13 +142,45 @@ class emptyWindow:
             city_list = [f"{city['id']} - {city['name']}" for city in cities]
             """populate the combo box"""
             self.cityCombo["values"] = city_list
+
+    def show_weather_section(self):
+        numSelected = self.cityCombo.current()
+        
+        if numSelected > -1:
+            info = self.get_info()
+            # Create new widgets for the weather section
+            weather_label = tk.Label(self.master, text="Weather Information")
+            weather_label.grid(row=4, column=0, columnspan=3, pady=10)
+
+            weather_info = tk.Label(self.master, text="Temperature: " + str(info['current']['temp_c']) + "°C/" + str(info['current']['temp_f']) +"°F\nHumidity: " + str(info['current']['humidity']) + "%\nCondition: " + str(info['current']['condition']['text']))
+            weather_info.grid(row=5, column=0, columnspan=3, pady=10)
+                    
+            self.image_label = tk.Label(self.master)
+            self.image_label.grid(row=6, column=0, columnspan=1, sticky="w")
+
+            # Add an image from a web URL
+            image_url = "http:" + info['current']['condition']['icon']  # Replace with your image URL
+            self.show_image(image_url)
+        else:
+            self.tempLabel['text'] = "please select a new city from the dropdown"
     
-    def get_weather_data(self):
+    def dark_mode(self):
         currentId = self.cityCombo.current()
         if currentId < 0:
             print("please select a city")
         else:
             print(self.cityCombo.get())
+
+
+    def show_image(self, url):
+        response = requests.get(url)
+        if response.status_code == 200:
+            image_data = response.content
+            image = Image.open(BytesIO(image_data))
+            photo = ImageTk.PhotoImage(image)
+            self.image_label.config(image=photo)
+            self.image_label.grid(row=6, column=1, columnspan=1, sticky="n")
+            self.image_label.image = photo  # Keep a reference to avoid garbage collection
 
 
 
@@ -153,7 +208,13 @@ class emptyWindow:
             else:
                 return[]
 
+class newWindow:
 
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Weather")
+        self.master.geometry("600x300")
+        tk.Label(self.master, text = "this is a new window").pack(pady=20)
 
 
 
