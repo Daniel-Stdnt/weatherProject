@@ -3,12 +3,17 @@
 Final Project for Intro to Software Devlopment 140
 
 requirements: 
+
 requests
+
 pillow
 
 (these can be installed by putting the following into the terminal:
+
 pip install requests
+
 pip install pillow
+
 )
 
 # How To Use It
