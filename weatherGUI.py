@@ -21,7 +21,7 @@ pip install pillow
 
 
 """
-key = "4343dea060574bf3803185626252502"
+key = "d3c1372de5b34b7b917181234250303"
 import tkinter as tk
 from tkinter import N, S, W, E
 from tkinter.font import Font
@@ -73,6 +73,9 @@ class emptyWindow:
         self.tempLabel.grid(row=2,column=0,columnspan=3)
 
         #Row 3
+        self.second_window_button = tk.Button(self.master,text="second window", command=self.open_new_window)
+        self.second_window_button.grid(row=3, column=0)
+
         self.cityCombo = ttk.Combobox(self.master)
         self.cityCombo.grid(row=3, column=1)
 
@@ -80,10 +83,10 @@ class emptyWindow:
         self.show_weather_button.grid(row=3, column =2, columnspan=1, sticky="w")
         
 
-    """def open_new_window(self):
-        # new_window = tk.Toplevel(self.master)
-        # newWindow(new_window)
-        numSelect = self.cityCombo.current()
+    def open_new_window(self):
+        new_window = tk.Toplevel(self.master)
+        newWindow(new_window)
+        """numSelect = self.cityCombo.current()
         CurrentCity = self.urlList[numSelect]
         new_window = tk.Toplevel(self.master)
         new_window.title("Weather App (In Progress)")
@@ -215,6 +218,7 @@ class newWindow:
         self.master.title("Weather")
         self.master.geometry("600x300")
         tk.Label(self.master, text = "this is a new window").pack(pady=20)
+        #edit this to be whatever we want the second window to be
 
 
 
