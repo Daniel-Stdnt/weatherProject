@@ -2,11 +2,10 @@
 
 Final Project for Intro to Software Devlopment 140
 
-requirements: 
-
-requests
-
-pillow
+# requirements
+these are the things you will need to install for this program to work:
+* requests
+* pillow
 
 (these can be installed by putting the following into the terminal:
 
