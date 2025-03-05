@@ -73,7 +73,7 @@ class emptyWindow:
         self.tempLabel.grid(row=2,column=0,columnspan=3)
 
         #Row 3
-        self.second_window_button = tk.Button(self.master,text="second window", command=self.open_new_window)
+        self.second_window_button = tk.Button(self.master,text="Weather App Guide", command=self.open_new_window)
         self.second_window_button.grid(row=3, column=0)
 
         self.cityCombo = ttk.Combobox(self.master)
@@ -215,10 +215,17 @@ class newWindow:
 
     def __init__(self, master):
         self.master = master
-        self.master.title("Weather")
+        self.master.title("Weather App Guide")
         self.master.geometry("600x300")
-        tk.Label(self.master, text = "this is a new window").pack(pady=20)
-        #edit this to be whatever we want the second window to be
+        tk.Label(self.master, text = "Hello! And welcome to the Weather App Guide!").pack(pady=20)
+        tk.Label(self.master, text = "Enter your city into the search box right below the title in the middle.").pack(pady=5)
+        tk.Label(self.master, text = "Click the Search City/Zip button to list the cities in the drop down below.").pack(pady=5)
+        tk.Label(self.master, text = "Select the city you want to view with the drop down.").pack(pady=5)
+        tk.Label(self.master, text = "Once selected, click the Show The Weather button to view that city's weather").pack(pady=5)
+        self.exit_button = tk.Button(self.master, text="Exit Guide", command=self.exitWindow).pack(pady=40)
+
+    def exitWindow(self):
+        self.master.destroy()
 
 
 
