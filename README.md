@@ -14,6 +14,8 @@ pip install requests
 pip install pillow
 
 )
+you will also need to have the image provided in the same folder you open it from in vscode
+to do this, go to file>open folder then select the folder with the code and image, and run the code from there
 
 # How To Use It
 1. enter your search though the input on the top
